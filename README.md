@@ -185,6 +185,19 @@ $status = Tapsilat::getOrderStatus('order-reference-id');
 
 // Get order transactions
 $transactions = Tapsilat::getOrderTransactions('order-reference-id');
+
+// Get system order statuses
+$statuses = Tapsilat::getSystemOrderStatuses();
+
+// Process order accounting
+use Tapsilat\Models\OrderAccountingRequest;
+$accountingRequest = new OrderAccountingRequest('order-reference-id');
+Tapsilat::orderAccounting($accountingRequest);
+
+// Process order post-authorization
+use Tapsilat\Models\OrderPostAuthRequest;
+$postAuthRequest = new OrderPostAuthRequest(100.00, 'order-reference-id');
+Tapsilat::orderPostAuth($postAuthRequest);
 ```
 
 ### Subscription Operations
