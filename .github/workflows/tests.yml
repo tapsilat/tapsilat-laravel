@@ -43,6 +43,12 @@ jobs:
           composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
           composer update --${{ matrix.stability }} --prefer-dist --no-interaction
 
+      - name: Setup environment
+        run: |
+          cp .env.example .env
+          echo "TAPSILAT_API_KEY=test-api-key" >> .env
+          echo "TAPSILAT_WEBHOOK_SECRET=test-webhook-secret" >> .env
+
       - name: Execute tests
         run: vendor/bin/pest
 
@@ -63,6 +69,12 @@ jobs:
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction
+
+      - name: Setup environment
+        run: |
+          cp .env.example .env
+          echo "TAPSILAT_API_KEY=test-api-key" >> .env
+          echo "TAPSILAT_WEBHOOK_SECRET=test-webhook-secret" >> .env
 
       - name: Execute tests with coverage
         run: vendor/bin/pest --coverage --coverage-clover coverage.xml
