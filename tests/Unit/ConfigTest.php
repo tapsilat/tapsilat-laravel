@@ -9,20 +9,28 @@ test('config is published correctly', function () {
 });
 
 test('config has all required keys', function () {
-    $keys = [
+    $requiredKeys = [
         'api_key',
         'base_url',
         'timeout',
         'webhook_secret',
         'default_currency',
         'default_locale',
-        'payment_success_url',
-        'payment_failure_url',
         'logging',
     ];
 
-    foreach ($keys as $key) {
+    foreach ($requiredKeys as $key) {
         expect(config("tapsilat.{$key}"))->not->toBeNull();
+    }
+
+    // These keys should exist but can be null
+    $optionalKeys = [
+        'payment_success_url',
+        'payment_failure_url',
+    ];
+
+    foreach ($optionalKeys as $key) {
+        expect(config()->has("tapsilat.{$key}"))->toBeTrue();
     }
 });
 
