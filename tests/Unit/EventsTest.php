@@ -4,9 +4,6 @@ use Tapsilat\Laravel\Events\OrderPaid;
 use Tapsilat\Laravel\Events\OrderFailed;
 use Tapsilat\Laravel\Events\OrderRefunded;
 use Tapsilat\Laravel\Events\WebhookReceived;
-use Tapsilat\Laravel\Tests\TestCase;
-
-uses(TestCase::class);
 
 test('webhook received event contains payload', function () {
     $payload = [

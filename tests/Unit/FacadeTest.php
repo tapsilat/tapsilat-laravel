@@ -2,9 +2,6 @@
 
 use Tapsilat\Laravel\Facades\Tapsilat;
 use Tapsilat\Laravel\TapsilatManager;
-use Tapsilat\Laravel\Tests\TestCase;
-
-uses(TestCase::class);
 
 test('facade resolves to manager', function () {
     expect(Tapsilat::getFacadeRoot())->toBeInstanceOf(TapsilatManager::class);

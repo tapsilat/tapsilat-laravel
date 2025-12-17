@@ -1,9 +1,5 @@
 <?php
 
-use Tapsilat\Laravel\Tests\TestCase;
-
-uses(TestCase::class);
-
 test('config is published correctly', function () {
     expect(config('tapsilat.api_key'))->toBe('test-api-key');
     expect(config('tapsilat.webhook_secret'))->toBe('test-webhook-secret');

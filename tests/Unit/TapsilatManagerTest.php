@@ -1,10 +1,7 @@
 <?php
 
 use Tapsilat\Laravel\TapsilatManager;
-use Tapsilat\Laravel\Tests\TestCase;
 use Tapsilat\TapsilatAPI;
-
-uses(TestCase::class);
 
 test('manager can be resolved from container', function () {
     $manager = app(TapsilatManager::class);
