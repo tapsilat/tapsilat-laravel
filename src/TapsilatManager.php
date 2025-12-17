@@ -18,6 +18,8 @@ use Tapsilat\Models\SubscriptionRedirectRequest;
 use Tapsilat\Models\SubscriptionCreateResponse;
 use Tapsilat\Models\SubscriptionDetail;
 use Tapsilat\Models\SubscriptionRedirectResponse;
+use Tapsilat\Models\OrderAccountingRequest;
+use Tapsilat\Models\OrderPostAuthRequest;
 use Tapsilat\TapsilatAPI;
 
 class TapsilatManager
@@ -59,7 +61,7 @@ class TapsilatManager
     /**
      * Get the configuration value.
      */
-    public function getConfig(string $key = null, $default = null): mixed
+    public function getConfig(?string $key = null, $default = null): mixed
     {
         if ($key === null) {
             return $this->config;
@@ -238,6 +240,44 @@ class TapsilatManager
     public function getOrderTransactions(string $referenceId): array
     {
         return $this->client()->getOrderTransactions($referenceId);
+    }
+
+    /**
+     * Process accounting for an order.
+     */
+    public function orderAccounting(OrderAccountingRequest $request): array
+    {
+        $this->log('Processing order accounting', ['order_reference_id' => $request->order_reference_id]);
+
+        try {
+            return $this->client()->orderAccounting($request);
+        } catch (APIException $e) {
+            $this->logError('Failed to process order accounting', $e);
+            throw $e;
+        }
+    }
+
+    /**
+     * Process post-authorization for an order.
+     */
+    public function orderPostAuth(OrderPostAuthRequest $request): array
+    {
+        $this->log('Processing order post-auth', ['reference_id' => $request->reference_id]);
+
+        try {
+            return $this->client()->orderPostAuth($request);
+        } catch (APIException $e) {
+            $this->logError('Failed to process order post-auth', $e);
+            throw $e;
+        }
+    }
+
+    /**
+     * Get system order statuses.
+     */
+    public function getSystemOrderStatuses(): array
+    {
+        return $this->client()->getSystemOrderStatuses();
     }
 
     // =========================================================================
