@@ -1,0 +1,67 @@
+{
+    "name": "tapsilat/tapsilat-laravel",
+    "description": "Laravel integration package for Tapsilat Payment Gateway SDK",
+    "keywords": [
+        "tapsilat",
+        "laravel",
+        "payment",
+        "payment-gateway",
+        "checkout",
+        "subscription"
+    ],
+    "homepage": "https://github.com/tapsilat/tapsilat-laravel",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Tapsilat",
+            "email": "support@tapsilat.dev"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "illuminate/contracts": "^10.0|^11.0",
+        "illuminate/support": "^10.0|^11.0",
+        "tapsilat/tapsilat-php": "^1.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.0",
+        "orchestra/testbench": "^8.0|^9.0",
+        "pestphp/pest": "^2.0",
+        "phpstan/phpstan": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Tapsilat\\Laravel\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tapsilat\\Laravel\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "vendor/bin/pint",
+        "analyse": "vendor/bin/phpstan analyse"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Tapsilat\\Laravel\\TapsilatServiceProvider"
+            ],
+            "aliases": {
+                "Tapsilat": "Tapsilat\\Laravel\\Facades\\Tapsilat"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
