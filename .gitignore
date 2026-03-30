@@ -6,6 +6,9 @@
 composer.lock
 .env
 .env.backup
+*exhaustive-verify*
+*-result.md
+*test-result*
 .phpunit.result.cache
 .DS_Store
 Thumbs.db

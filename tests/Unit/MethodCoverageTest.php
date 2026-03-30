@@ -125,10 +125,7 @@ describe('Order Term Methods', function () {
         expect(method_exists($manager, 'orderTerminate'))->toBeTrue();
     });
 
-    test('manager has terminateOrderTerm method', function () {
-        $manager = app(TapsilatManager::class);
-        expect(method_exists($manager, 'terminateOrderTerm'))->toBeTrue();
-    });
+
 
     test('manager has orderManualCallback method', function () {
         $manager = app(TapsilatManager::class);

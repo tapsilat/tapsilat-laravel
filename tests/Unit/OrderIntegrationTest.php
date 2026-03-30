@@ -159,7 +159,10 @@ describe('Order Operations', function () {
         $this->apiMock
             ->shouldReceive('cancelOrder')
             ->once()
-            ->with($referenceId)
+            ->with(Mockery::on(function ($arg) use ($referenceId) {
+                return $arg instanceof \Tapsilat\Models\CancelOrderDTO
+                    && $arg->reference_id === $referenceId;
+            }))
             ->andReturn($expectedResponse);
 
         $result = $this->manager->cancelOrder($referenceId);
@@ -218,7 +221,10 @@ describe('Order Operations', function () {
         $this->apiMock
             ->shouldReceive('refundAllOrder')
             ->once()
-            ->with($referenceId)
+            ->with(Mockery::on(function ($arg) use ($referenceId) {
+                return $arg instanceof \Tapsilat\Models\RefundAllOrderDTO
+                    && $arg->reference_id === $referenceId;
+            }))
             ->andReturn($expectedResponse);
 
         $result = $this->manager->refundAllOrder($referenceId);
@@ -279,7 +285,10 @@ describe('Order Information', function () {
         $this->apiMock
             ->shouldReceive('getOrderPaymentDetails')
             ->once()
-            ->with($referenceId, '')
+            ->with(Mockery::on(function ($arg) use ($referenceId) {
+                return $arg instanceof \Tapsilat\Models\OrderPaymentDetailDTO
+                    && $arg->reference_id === $referenceId;
+            }))
             ->andReturn($expectedResponse);
 
         $result = $this->manager->getOrderPaymentDetails($referenceId);

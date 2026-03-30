@@ -9,8 +9,10 @@ use Tapsilat\Models\OrderCreateDTO;
 use Tapsilat\Models\OrderResponse;
 use Tapsilat\Models\RefundOrderDTO;
 use Tapsilat\Models\OrderPaymentTermCreateDTO;
+use Tapsilat\Models\CancelOrderDTO;
 use Tapsilat\Models\OrderPaymentTermUpdateDTO;
 use Tapsilat\Models\OrderTermRefundRequest;
+use Tapsilat\Models\OrderPaymentDetailDTO;
 use Tapsilat\Models\SubscriptionCreateRequest;
 use Tapsilat\Models\SubscriptionGetRequest;
 use Tapsilat\Models\SubscriptionCancelRequest;
@@ -20,6 +22,22 @@ use Tapsilat\Models\SubscriptionDetail;
 use Tapsilat\Models\SubscriptionRedirectResponse;
 use Tapsilat\Models\OrderAccountingRequest;
 use Tapsilat\Models\OrderPostAuthRequest;
+use Tapsilat\Models\OrderRelatedReferenceDTO;
+use Tapsilat\Models\AddBasketItemRequest;
+use Tapsilat\Models\RemoveBasketItemRequest;
+use Tapsilat\Models\UpdateBasketItemRequest;
+use Tapsilat\Models\CallbackURLDTO;
+use Tapsilat\Models\OrgCreateBusinessRequest;
+use Tapsilat\Models\GetUserLimitRequest;
+use Tapsilat\Models\SetLimitUserRequest;
+use Tapsilat\Models\GetVposRequest;
+use Tapsilat\Models\OrgCreateUserReq;
+use Tapsilat\Models\OrgUserVerifyReq;
+use Tapsilat\Models\OrgUserMobileVerifyReq;
+use Tapsilat\Models\RefundAllOrderDTO;
+use Tapsilat\Models\TerminateRequest;
+use Tapsilat\Models\OrderManualCallbackDTO;
+use Tapsilat\Models\OrderPaymentTermDeleteDTO;
 use Tapsilat\TapsilatAPI;
 
 class TapsilatManager
@@ -181,7 +199,7 @@ class TapsilatManager
     public function cancelOrder(string $referenceId): array
     {
         $this->log('Canceling order', ['reference_id' => $referenceId]);
-        return $this->client()->cancelOrder($referenceId);
+        return $this->client()->cancelOrder(new CancelOrderDTO($referenceId));
     }
 
     /**
@@ -215,7 +233,7 @@ class TapsilatManager
     public function refundAllOrder(string $referenceId): array
     {
         $this->log('Refunding all order', ['reference_id' => $referenceId]);
-        return $this->client()->refundAllOrder($referenceId);
+        return $this->client()->refundAllOrder(new RefundAllOrderDTO($referenceId));
     }
 
     /**
@@ -223,7 +241,7 @@ class TapsilatManager
      */
     public function getOrderPaymentDetails(string $referenceId, string $conversationId = ''): array
     {
-        return $this->client()->getOrderPaymentDetails($referenceId, $conversationId);
+        return $this->client()->getOrderPaymentDetails(new OrderPaymentDetailDTO($referenceId, $conversationId));
     }
 
     /**
@@ -310,7 +328,7 @@ class TapsilatManager
             'order_id' => $orderId,
             'term_reference_id' => $termReferenceId,
         ]);
-        return $this->client()->deleteOrderTerm($orderId, $termReferenceId);
+        return $this->client()->deleteOrderTerm(new OrderPaymentTermDeleteDTO($orderId, $termReferenceId));
     }
 
     /**
@@ -337,19 +355,7 @@ class TapsilatManager
     public function orderTerminate(string $referenceId): array
     {
         $this->log('Terminating order', ['reference_id' => $referenceId]);
-        return $this->client()->orderTerminate($referenceId);
-    }
-
-    /**
-     * Terminate an order term.
-     */
-    public function terminateOrderTerm(string $termReferenceId, string $reason = ''): array
-    {
-        $this->log('Terminating order term', [
-            'term_reference_id' => $termReferenceId,
-            'reason' => $reason,
-        ]);
-        return $this->client()->terminateOrderTerm($termReferenceId, $reason);
+        return $this->client()->terminateOrder(new TerminateRequest($referenceId));
     }
 
     /**
@@ -361,7 +367,7 @@ class TapsilatManager
             'reference_id' => $referenceId,
             'conversation_id' => $conversationId,
         ]);
-        return $this->client()->orderManualCallback($referenceId, $conversationId);
+        return $this->client()->manualCallback(new OrderManualCallbackDTO($referenceId, $conversationId));
     }
 
     /**
@@ -373,7 +379,34 @@ class TapsilatManager
             'reference_id' => $referenceId,
             'related_reference_id' => $relatedReferenceId,
         ]);
-        return $this->client()->orderRelatedUpdate($referenceId, $relatedReferenceId);
+        return $this->client()->relatedUpdate(new OrderRelatedReferenceDTO($referenceId, $relatedReferenceId));
+    }
+
+    /**
+     * Add an item to the order basket.
+     */
+    public function addBasketItem(AddBasketItemRequest $request): array
+    {
+        $this->log('Adding basket item', ['order_reference_id' => $request->order_reference_id]);
+        return $this->client()->addBasketItem($request);
+    }
+
+    /**
+     * Remove an item from the order basket.
+     */
+    public function removeBasketItem(RemoveBasketItemRequest $request): array
+    {
+        $this->log('Removing basket item', ['order_reference_id' => $request->order_reference_id]);
+        return $this->client()->removeBasketItem($request);
+    }
+
+    /**
+     * Update an item in the order basket.
+     */
+    public function updateBasketItem(UpdateBasketItemRequest $request): array
+    {
+        $this->log('Updating basket item', ['order_reference_id' => $request->order_reference_id]);
+        return $this->client()->updateBasketItem($request);
     }
 
     // =========================================================================
@@ -481,6 +514,124 @@ class TapsilatManager
     public function getOrganizationSettings(): array
     {
         return $this->client()->getOrganizationSettings();
+    }
+
+    /**
+     * Get organization callback URLs.
+     */
+    public function getOrganizationCallback(): array
+    {
+        return $this->client()->getOrganizationCallback();
+    }
+
+    /**
+     * Update organization callback URLs.
+     */
+    public function updateOrganizationCallback(CallbackURLDTO $request): array
+    {
+        $this->log('Updating organization callback');
+        return $this->client()->updateOrganizationCallback($request);
+    }
+
+    /**
+     * Create organization business entity.
+     */
+    public function createOrganizationBusiness(OrgCreateBusinessRequest $request): array
+    {
+        $this->log('Creating organization business');
+        return $this->client()->createOrganizationBusiness($request);
+    }
+
+    /**
+     * Get organization supported currencies.
+     */
+    public function getOrganizationCurrencies(): array
+    {
+        return $this->client()->getOrganizationCurrencies();
+    }
+
+    /**
+     * Get organization user limit configuration.
+     */
+    public function getOrganizationLimitUser(GetUserLimitRequest $request): array
+    {
+        return $this->client()->getOrganizationLimitUser($request);
+    }
+
+    /**
+     * Set organization user limit configuration.
+     */
+    public function setOrganizationLimitUser(SetLimitUserRequest $request): array
+    {
+        $this->log('Setting organization user limit');
+        return $this->client()->setOrganizationLimitUser($request);
+    }
+
+    /**
+     * Get organization transaction limits.
+     */
+    public function getOrganizationLimits(): array
+    {
+        return $this->client()->getOrganizationLimits();
+    }
+
+    /**
+     * List organization virtual POS terminals.
+     */
+    public function listOrganizationVpos(GetVposRequest $request): array
+    {
+        return $this->client()->listOrganizationVpos($request);
+    }
+
+    /**
+     * Get organization metadata.
+     */
+    public function getOrganizationMeta(string $name): array
+    {
+        return $this->client()->getOrganizationMeta($name);
+    }
+
+    /**
+     * Get organization scopes (permissions).
+     */
+    public function getOrganizationScopes(): array
+    {
+        return $this->client()->getOrganizationScopes();
+    }
+
+    /**
+     * List sub-organizations.
+     */
+    public function getOrganizationSuborganizations(int $page = 1, int $perPage = 10): array
+    {
+        return $this->client()->getOrganizationSuborganizations($page, $perPage);
+    }
+
+    /**
+     * Create organization user.
+     */
+    public function createOrganizationUser(OrgCreateUserReq $request): array
+    {
+        $this->log('Creating organization user');
+        return $this->client()->createOrganizationUser($request);
+    }
+
+    /**
+     * Verify organization user.
+     */
+    public function verifyOrganizationUser(OrgUserVerifyReq $request): array
+    {
+        $this->log('Verify organization user');
+        return $this->client()->verifyOrganizationUser($request);
+    }
+
+    /**
+     * Verify organization user mobile.
+     */
+    public function verifyOrganizationUserMobile(OrgUserMobileVerifyReq $request): array
+    {
+        $this->log('Verify organization user mobile');
+        return $this->client()->verifyOrganizationUserMobile($request);
     }
 
     // =========================================================================

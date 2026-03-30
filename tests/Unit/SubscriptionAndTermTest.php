@@ -224,7 +224,11 @@ describe('Order Term Operations', function () {
         $this->apiMock
             ->shouldReceive('deleteOrderTerm')
             ->once()
-            ->with($orderId, $termReferenceId)
+            ->with(Mockery::on(function ($arg) use ($orderId, $termReferenceId) {
+                return $arg instanceof \Tapsilat\Models\OrderPaymentTermDeleteDTO
+                    && $arg->order_id === $orderId
+                    && $arg->term_reference_id === $termReferenceId;
+            }))
             ->andReturn($expectedResponse);
 
         $result = $this->manager->deleteOrderTerm($orderId, $termReferenceId);
@@ -283,9 +287,12 @@ describe('Order Term Operations', function () {
         ];
 
         $this->apiMock
-            ->shouldReceive('orderTerminate')
+            ->shouldReceive('terminateOrder')
             ->once()
-            ->with($referenceId)
+            ->with(Mockery::on(function ($arg) use ($referenceId) {
+                return $arg instanceof \Tapsilat\Models\TerminateRequest
+                    && $arg->reference_id === $referenceId;
+            }))
             ->andReturn($expectedResponse);
 
         $result = $this->manager->orderTerminate($referenceId);
@@ -294,26 +301,7 @@ describe('Order Term Operations', function () {
         expect($result['is_success'])->toBeTrue();
     });
 
-    test('terminateOrderTerm terminates specific term', function () {
-        $termReferenceId = 'term-to-terminate';
-        $reason = 'Customer request';
 
-        $expectedResponse = [
-            'is_success' => true,
-            'message' => 'TERM_TERMINATED'
-        ];
-
-        $this->apiMock
-            ->shouldReceive('terminateOrderTerm')
-            ->once()
-            ->with($termReferenceId, $reason)
-            ->andReturn($expectedResponse);
-
-        $result = $this->manager->terminateOrderTerm($termReferenceId, $reason);
-
-        expect($result)->toBeArray();
-        expect($result['is_success'])->toBeTrue();
-    });
 
     test('orderManualCallback triggers manual callback', function () {
         $referenceId = 'order-callback';
@@ -325,9 +313,13 @@ describe('Order Term Operations', function () {
         ];
 
         $this->apiMock
-            ->shouldReceive('orderManualCallback')
+            ->shouldReceive('manualCallback')
             ->once()
-            ->with($referenceId, $conversationId)
+            ->with(Mockery::on(function ($arg) use ($referenceId, $conversationId) {
+                return $arg instanceof \Tapsilat\Models\OrderManualCallbackDTO
+                    && $arg->reference_id === $referenceId
+                    && $arg->conversation_id === $conversationId;
+            }))
             ->andReturn($expectedResponse);
 
         $result = $this->manager->orderManualCallback($referenceId, $conversationId);
@@ -346,9 +338,13 @@ describe('Order Term Operations', function () {
         ];
 
         $this->apiMock
-            ->shouldReceive('orderRelatedUpdate')
+            ->shouldReceive('relatedUpdate')
             ->once()
-            ->with($referenceId, $relatedReferenceId)
+            ->with(Mockery::on(function ($arg) use ($referenceId, $relatedReferenceId) {
+                return $arg instanceof \Tapsilat\Models\OrderRelatedReferenceDTO
+                    && $arg->reference_id === $referenceId
+                    && $arg->related_reference_id === $relatedReferenceId;
+            }))
             ->andReturn($expectedResponse);
 
         $result = $this->manager->orderRelatedUpdate($referenceId, $relatedReferenceId);

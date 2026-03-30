@@ -1,0 +1,32 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: .docker/Dockerfile
+    container_name: tapsilat-laravel-app
+    volumes:
+      - ../:/var/www/html
+    working_dir: /var/www/html
+    env_file:
+      - ../.env
+    command: tail -f /dev/null
+    networks:
+      - tapsilat-network
+
+  test:
+    build:
+      context: ..
+      dockerfile: .docker/Dockerfile
+    container_name: tapsilat-laravel-test
+    volumes:
+      - ../:/var/www/html
+    working_dir: /var/www/html
+    env_file:
+      - ../.env
+    command: composer test
+    networks:
+      - tapsilat-network
+
+networks:
+  tapsilat-network:
+    driver: bridge
