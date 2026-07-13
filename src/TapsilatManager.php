@@ -38,6 +38,14 @@ use Tapsilat\Models\RefundAllOrderDTO;
 use Tapsilat\Models\TerminateRequest;
 use Tapsilat\Models\OrderManualCallbackDTO;
 use Tapsilat\Models\OrderPaymentTermDeleteDTO;
+use Tapsilat\Models\GetOrderPaymentsRequest;
+use Tapsilat\Models\OrderRefundRequestDTO;
+use Tapsilat\Models\OrderOIPDTO;
+use Tapsilat\Models\OrderPaymentOptionsUpdateDTO;
+use Tapsilat\Models\SplitOrderItemPaymentDTO;
+use Tapsilat\Models\OrgUserTokenCreateReq;
+use Tapsilat\Models\SubmerchantCreateDTO;
+use Tapsilat\Models\SubmerchantUpdateDTO;
 use Tapsilat\TapsilatAPI;
 
 class TapsilatManager
@@ -172,9 +180,9 @@ class TapsilatManager
     /**
      * Get orders with pagination.
      */
-    public function getOrders(string $page = '1', string $perPage = '10', string $buyerId = ''): array
+    public function getOrders(string $page = '1', string $perPage = '10', string $buyerId = '', ?int $status = null): array
     {
-        return $this->client()->getOrders($page, $perPage, $buyerId);
+        return $this->client()->getOrders($page, $perPage, $buyerId, $status);
     }
 
     /**
@@ -290,12 +298,111 @@ class TapsilatManager
         }
     }
 
+    public function getOrderPayments(GetOrderPaymentsRequest $request): array
+    {
+        return $this->client()->getOrderPayments($request);
+    }
+
+    public function getOrderPdf(string $referenceId, string $locale = 'tr'): string
+    {
+        return $this->client()->getOrderPdf($referenceId, $locale);
+    }
+
+    public function getOrderExcel(string $referenceId, string $locale = 'tr'): string
+    {
+        return $this->client()->getOrderExcel($referenceId, $locale);
+    }
+
+    public function createOrderRefundRequest(OrderRefundRequestDTO $request): array
+    {
+        $this->log('Creating order refund request', ['order_reference_id' => $request->order_reference_id]);
+        return $this->client()->createOrderRefundRequest($request);
+    }
+
+    public function addOrderOip(OrderOIPDTO $request): array
+    {
+        $this->log('Adding OIP to order', ['order_reference_id' => $request->order_reference_id]);
+        return $this->client()->addOrderOip($request);
+    }
+
+    public function updatePaymentOptions(OrderPaymentOptionsUpdateDTO $request): array
+    {
+        $this->log('Updating order payment options', ['order_reference_id' => $request->order_reference_id]);
+        return $this->client()->updatePaymentOptions($request);
+    }
+
+    public function splitOrderItemPayment(SplitOrderItemPaymentDTO $request): array
+    {
+        $this->log('Splitting order item payment', ['order_reference_id' => $request->order_reference_id]);
+        return $this->client()->splitOrderItemPayment($request);
+    }
+
+    public function orderVposQuery(string $referenceId): array
+    {
+        return $this->client()->orderVposQuery($referenceId);
+    }
+
+    public function relatedUpdate(string $id, string $relatedReferenceId): array
+    {
+        return $this->client()->relatedUpdate($id, $relatedReferenceId);
+    }
+
+    public function terminateOrder(string $id): array
+    {
+        return $this->client()->terminateOrder($id);
+    }
+
+    public function manualCallback(string $id): array
+    {
+        return $this->client()->manualCallback($id);
+    }
+
     /**
      * Get system order statuses.
      */
     public function getSystemOrderStatuses(): array
     {
         return $this->client()->getSystemOrderStatuses();
+    }
+
+    public function getSystemBasketItemTypes(): array
+    {
+        return $this->client()->getSystemBasketItemTypes();
+    }
+
+    public function getSystemErrorCodes(): array
+    {
+        return $this->client()->getSystemErrorCodes();
+    }
+
+    public function getSystemPaymentTermStatuses(): array
+    {
+        return $this->client()->getSystemPaymentTermStatuses();
+    }
+
+    public function getSystemProductTypes(): array
+    {
+        return $this->client()->getSystemProductTypes();
+    }
+
+    public function getSystemShortcutTypes(): array
+    {
+        return $this->client()->getSystemShortcutTypes();
+    }
+
+    public function getSystemTransactionPaymentTypes(): array
+    {
+        return $this->client()->getSystemTransactionPaymentTypes();
+    }
+
+    public function getSystemTransactionPurposes(): array
+    {
+        return $this->client()->getSystemTransactionPurposes();
+    }
+
+    public function getSystemTransactionStatuses(): array
+    {
+        return $this->client()->getSystemTransactionStatuses();
     }
 
     // =========================================================================
@@ -355,7 +462,7 @@ class TapsilatManager
     public function orderTerminate(string $referenceId): array
     {
         $this->log('Terminating order', ['reference_id' => $referenceId]);
-        return $this->client()->terminateOrder(new TerminateRequest($referenceId));
+        return $this->client()->orderTerminate(new TerminateRequest($referenceId));
     }
 
     /**
@@ -367,7 +474,7 @@ class TapsilatManager
             'reference_id' => $referenceId,
             'conversation_id' => $conversationId,
         ]);
-        return $this->client()->manualCallback(new OrderManualCallbackDTO($referenceId, $conversationId));
+        return $this->client()->orderManualCallback(new OrderManualCallbackDTO($referenceId, $conversationId));
     }
 
     /**
@@ -379,7 +486,7 @@ class TapsilatManager
             'reference_id' => $referenceId,
             'related_reference_id' => $relatedReferenceId,
         ]);
-        return $this->client()->relatedUpdate(new OrderRelatedReferenceDTO($referenceId, $relatedReferenceId));
+        return $this->client()->orderRelatedUpdate(new OrderRelatedReferenceDTO($referenceId, $relatedReferenceId));
     }
 
     /**
@@ -632,6 +739,63 @@ class TapsilatManager
     {
         $this->log('Verify organization user mobile');
         return $this->client()->verifyOrganizationUserMobile($request);
+    }
+
+    public function getOrganizationCurrencyPresets(): array
+    {
+        return $this->client()->getOrganizationCurrencyPresets();
+    }
+
+    public function getSuborganizationDetails(string $referenceId): array
+    {
+        return $this->client()->getSuborganizationDetails($referenceId);
+    }
+
+    public function getSuborganizationSubmerchants(string $referenceId, int $page = 1, int $perPage = 10): array
+    {
+        return $this->client()->getSuborganizationSubmerchants($referenceId, $page, $perPage);
+    }
+
+    public function createOrganizationUserToken(OrgUserTokenCreateReq $request): array
+    {
+        return $this->client()->createOrganizationUserToken($request);
+    }
+
+    // =========================================================================
+    // Submerchant Methods
+    // =========================================================================
+
+    public function createSubmerchant(SubmerchantCreateDTO $request): array
+    {
+        $this->log('Creating submerchant', ['legal_company_title' => $request->legal_company_title]);
+        return $this->client()->createSubmerchant($request);
+    }
+
+    public function getSubmerchant(string $referenceId): array
+    {
+        return $this->client()->getSubmerchant($referenceId);
+    }
+
+    public function getSuborganizationBySubmerchant(string $referenceId): array
+    {
+        return $this->client()->getSuborganizationBySubmerchant($referenceId);
+    }
+
+    public function updateSubmerchant(SubmerchantUpdateDTO $request): array
+    {
+        $this->log('Updating submerchant', ['sub_merchant_key' => $request->sub_merchant_key]);
+        return $this->client()->updateSubmerchant($request);
+    }
+
+    public function deleteSubmerchant(string $referenceId): array
+    {
+        $this->log('Deleting submerchant', ['reference_id' => $referenceId]);
+        return $this->client()->deleteSubmerchant($referenceId);
+    }
+
+    public function listSubmerchants(int $page = 1, int $perPage = 10, string $status = '', string $externalId = ''): array
+    {
+        return $this->client()->listSubmerchants($page, $perPage, $status, $externalId);
     }
 
     // =========================================================================

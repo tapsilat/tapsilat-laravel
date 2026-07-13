@@ -287,7 +287,7 @@ describe('Order Term Operations', function () {
         ];
 
         $this->apiMock
-            ->shouldReceive('terminateOrder')
+            ->shouldReceive('orderTerminate')
             ->once()
             ->with(Mockery::on(function ($arg) use ($referenceId) {
                 return $arg instanceof \Tapsilat\Models\TerminateRequest
@@ -313,7 +313,7 @@ describe('Order Term Operations', function () {
         ];
 
         $this->apiMock
-            ->shouldReceive('manualCallback')
+            ->shouldReceive('orderManualCallback')
             ->once()
             ->with(Mockery::on(function ($arg) use ($referenceId, $conversationId) {
                 return $arg instanceof \Tapsilat\Models\OrderManualCallbackDTO
@@ -338,7 +338,7 @@ describe('Order Term Operations', function () {
         ];
 
         $this->apiMock
-            ->shouldReceive('relatedUpdate')
+            ->shouldReceive('orderRelatedUpdate')
             ->once()
             ->with(Mockery::on(function ($arg) use ($referenceId, $relatedReferenceId) {
                 return $arg instanceof \Tapsilat\Models\OrderRelatedReferenceDTO

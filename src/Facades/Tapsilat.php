@@ -17,6 +17,14 @@ use Tapsilat\Models\SubscriptionRedirectRequest;
 use Tapsilat\Models\SubscriptionCreateResponse;
 use Tapsilat\Models\SubscriptionDetail;
 use Tapsilat\Models\SubscriptionRedirectResponse;
+use Tapsilat\Models\GetOrderPaymentsRequest;
+use Tapsilat\Models\OrderRefundRequestDTO;
+use Tapsilat\Models\OrderOIPDTO;
+use Tapsilat\Models\OrderPaymentOptionsUpdateDTO;
+use Tapsilat\Models\SplitOrderItemPaymentDTO;
+use Tapsilat\Models\OrgUserTokenCreateReq;
+use Tapsilat\Models\SubmerchantCreateDTO;
+use Tapsilat\Models\SubmerchantUpdateDTO;
 use Tapsilat\TapsilatAPI;
 
 /**
@@ -29,7 +37,7 @@ use Tapsilat\TapsilatAPI;
  * @method static OrderResponse getOrder(string $referenceId)
  * @method static OrderResponse getOrderByConversationId(string $conversationId)
  * @method static array getOrderList(int $page = 1, int $perPage = 10, string $startDate = '', string $endDate = '', string $organizationId = '', string $relatedReferenceId = '')
- * @method static array getOrders(string $page = '1', string $perPage = '10', string $buyerId = '')
+ * @method static array getOrders(string $page = '1', string $perPage = '10', string $buyerId = '', ?int $status = null)
  * @method static array getOrderSubmerchants(int $page = 1, int $perPage = 10)
  * @method static string getCheckoutUrl(string $referenceId)
  * @method static array cancelOrder(string $referenceId)
@@ -39,6 +47,17 @@ use Tapsilat\TapsilatAPI;
  * @method static array getOrderPaymentDetails(string $referenceId, string $conversationId = '')
  * @method static array getOrderStatus(string $referenceId)
  * @method static array getOrderTransactions(string $referenceId)
+ * @method static array getOrderPayments(GetOrderPaymentsRequest $request)
+ * @method static string getOrderPdf(string $referenceId, string $locale = 'tr')
+ * @method static string getOrderExcel(string $referenceId, string $locale = 'tr')
+ * @method static array createOrderRefundRequest(OrderRefundRequestDTO $request)
+ * @method static array addOrderOip(OrderOIPDTO $request)
+ * @method static array updatePaymentOptions(OrderPaymentOptionsUpdateDTO $request)
+ * @method static array splitOrderItemPayment(SplitOrderItemPaymentDTO $request)
+ * @method static array orderVposQuery(string $referenceId)
+ * @method static array relatedUpdate(string $id, string $relatedReferenceId)
+ * @method static array terminateOrder(string $id)
+ * @method static array manualCallback(string $id)
  * 
  * Order Term Methods
  * @method static array getOrderTerm(string $termReferenceId)
@@ -64,6 +83,29 @@ use Tapsilat\TapsilatAPI;
  * 
  * Organization Methods
  * @method static array getOrganizationSettings()
+ * @method static array getOrganizationCurrencyPresets()
+ * @method static array getSuborganizationDetails(string $referenceId)
+ * @method static array getSuborganizationSubmerchants(string $referenceId, int $page = 1, int $perPage = 10)
+ * @method static array createOrganizationUserToken(OrgUserTokenCreateReq $request)
+ * 
+ * Submerchant Methods
+ * @method static array createSubmerchant(SubmerchantCreateDTO $request)
+ * @method static array getSubmerchant(string $referenceId)
+ * @method static array getSuborganizationBySubmerchant(string $referenceId)
+ * @method static array updateSubmerchant(SubmerchantUpdateDTO $request)
+ * @method static array deleteSubmerchant(string $referenceId)
+ * @method static array listSubmerchants(int $page = 1, int $perPage = 10, string $status = '', string $externalId = '')
+ * 
+ * System Methods
+ * @method static array getSystemOrderStatuses()
+ * @method static array getSystemBasketItemTypes()
+ * @method static array getSystemErrorCodes()
+ * @method static array getSystemPaymentTermStatuses()
+ * @method static array getSystemProductTypes()
+ * @method static array getSystemShortcutTypes()
+ * @method static array getSystemTransactionPaymentTypes()
+ * @method static array getSystemTransactionPurposes()
+ * @method static array getSystemTransactionStatuses()
  * 
  * Health & Webhook Methods
  * @method static array healthCheck()
