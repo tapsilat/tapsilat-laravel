@@ -201,3 +201,166 @@ describe('Organization & Health Methods', function () {
         expect(method_exists($manager, 'verifyWebhook'))->toBeTrue();
     });
 });
+
+describe('Newly Synced Methods', function () {
+    test('manager has setDebug method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'setDebug'))->toBeTrue();
+    });
+
+    test('manager has getSystemBasketItemTypes method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'getSystemBasketItemTypes'))->toBeTrue();
+    });
+
+    test('manager has getSystemErrorCodes method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'getSystemErrorCodes'))->toBeTrue();
+    });
+
+    test('manager has getSystemPaymentTermStatuses method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'getSystemPaymentTermStatuses'))->toBeTrue();
+    });
+
+    test('manager has getSystemProductTypes method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'getSystemProductTypes'))->toBeTrue();
+    });
+
+    test('manager has getSystemShortcutTypes method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'getSystemShortcutTypes'))->toBeTrue();
+    });
+
+    test('manager has getSystemTransactionPaymentTypes method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'getSystemTransactionPaymentTypes'))->toBeTrue();
+    });
+
+    test('manager has getSystemTransactionPurposes method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'getSystemTransactionPurposes'))->toBeTrue();
+    });
+
+    test('manager has getSystemTransactionStatuses method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'getSystemTransactionStatuses'))->toBeTrue();
+    });
+
+    test('manager has relatedUpdate method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'relatedUpdate'))->toBeTrue();
+    });
+
+    test('manager has terminateOrder method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'terminateOrder'))->toBeTrue();
+    });
+
+    test('manager has manualCallback method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'manualCallback'))->toBeTrue();
+    });
+
+    test('manager has getOrderPayments method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'getOrderPayments'))->toBeTrue();
+    });
+
+    test('manager has getOrderPdf method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'getOrderPdf'))->toBeTrue();
+    });
+
+    test('manager has getOrderExcel method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'getOrderExcel'))->toBeTrue();
+    });
+
+    test('manager has createOrderRefundRequest method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'createOrderRefundRequest'))->toBeTrue();
+    });
+
+    test('manager has addOrderOip method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'addOrderOip'))->toBeTrue();
+    });
+
+    test('manager has getOrderPaymentDetailsById method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'getOrderPaymentDetailsById'))->toBeTrue();
+    });
+
+    test('manager has updatePaymentOptions method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'updatePaymentOptions'))->toBeTrue();
+    });
+
+    test('manager has splitOrderItemPayment method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'splitOrderItemPayment'))->toBeTrue();
+    });
+
+    test('manager has orderCallback method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'orderCallback'))->toBeTrue();
+    });
+
+    test('manager has orderVposQuery method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'orderVposQuery'))->toBeTrue();
+    });
+
+    test('manager has getOrganizationSuborganizationDetails method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'getOrganizationSuborganizationDetails'))->toBeTrue();
+    });
+
+    test('manager has getOrganizationSuborganizationSubmerchants method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'getOrganizationSuborganizationSubmerchants'))->toBeTrue();
+    });
+
+    test('manager has getOrganizationCurrencyPresets method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'getOrganizationCurrencyPresets'))->toBeTrue();
+    });
+
+    test('manager has createOrganizationUserToken method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'createOrganizationUserToken'))->toBeTrue();
+    });
+
+    test('manager has createSubmerchant method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'createSubmerchant'))->toBeTrue();
+    });
+
+    test('manager has getSubmerchant method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'getSubmerchant'))->toBeTrue();
+    });
+
+    test('manager has getSuborganizationBySubmerchant method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'getSuborganizationBySubmerchant'))->toBeTrue();
+    });
+
+    test('manager has updateSubmerchant method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'updateSubmerchant'))->toBeTrue();
+    });
+
+    test('manager has deleteSubmerchant method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'deleteSubmerchant'))->toBeTrue();
+    });
+
+    test('manager has listSubmerchants method', function () {
+        $manager = app(TapsilatManager::class);
+        expect(method_exists($manager, 'listSubmerchants'))->toBeTrue();
+    });
+
+});
