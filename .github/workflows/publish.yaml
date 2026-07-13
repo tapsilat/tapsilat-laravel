@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: ['8.1', '8.2', '8.3']
+        php: ['8.2', '8.3']
         
     steps:
       - name: Checkout code
@@ -37,7 +37,7 @@ jobs:
             ${{ runner.os }}-php-
             
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+        run: composer update --prefer-dist --no-progress
         
       - name: Run tests
         run: composer test
@@ -57,7 +57,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: '8.2'
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite
           coverage: none
           
@@ -74,7 +74,7 @@ jobs:
             ${{ runner.os }}-php-
             
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+        run: composer update --prefer-dist --no-progress
         
       - name: Run tests
         run: composer test
@@ -104,7 +104,7 @@ jobs:
           echo "Release for tag ${{ github.ref_name }} already exists, skipping creation"
           
       - name: Build package
-        run: composer install --no-dev --optimize-autoloader
+        run: composer update --no-dev --optimize-autoloader
         
       - name: Upload Release Assets
         if: steps.check_release.outputs.exists != '200'
@@ -183,7 +183,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: '8.2'
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite
           coverage: none
           
@@ -200,7 +200,7 @@ jobs:
             ${{ runner.os }}-php-
             
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+        run: composer update --prefer-dist --no-progress
         
       - name: Run tests
         run: composer test
