@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0d40f8c2b1e56adcce6b81f6c920ca45",
+    "content-hash": "17b52a210e8d1614c6bd2b7d7177807d",
     "packages": [
         {
             "name": "brick/math",
@@ -5522,10 +5522,16 @@
         {
             "name": "tapsilat/tapsilat-php",
             "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tapsilat/tapsilat-php.git",
+                "reference": "a431826a830eef15a7dbe52872d8c4a4b5816111"
+            },
             "dist": {
-                "type": "path",
-                "url": "../tapsilat-php",
-                "reference": "3061d6dfebce25e556f7cea0827d379ce727521c"
+                "type": "zip",
+                "url": "https://api.github.com/repos/tapsilat/tapsilat-php/zipball/a431826a830eef15a7dbe52872d8c4a4b5816111",
+                "reference": "a431826a830eef15a7dbe52872d8c4a4b5816111",
+                "shasum": ""
             },
             "require": {
                 "php": ">=7.4",
@@ -5535,6 +5541,7 @@
                 "phpunit/phpunit": "^9.0",
                 "squizlabs/php_codesniffer": "^3.7 || ^4.0"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -5542,16 +5549,7 @@
                     "Tapsilat\\Models\\": "src/Models/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Tapsilat\\Tests\\": "tests/"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "phpunit"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -5573,9 +5571,7 @@
                 "issues": "https://github.com/tapsilat/tapsilat-php/issues",
                 "source": "https://github.com/tapsilat/tapsilat-php"
             },
-            "transport-options": {
-                "relative": true
-            }
+            "time": "2026-07-11T08:08:28+00:00"
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",
