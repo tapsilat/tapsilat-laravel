@@ -47,6 +47,9 @@
         "analyse": "vendor/bin/phpstan analyse"
     },
     "config": {
+        "platform": {
+            "php": "8.2.32"
+        },
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true
