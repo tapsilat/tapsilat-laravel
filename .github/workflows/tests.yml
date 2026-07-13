@@ -68,7 +68,7 @@ jobs:
           coverage: xdebug
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-interaction
+        run: composer update --prefer-dist --no-interaction
 
       - name: Setup environment
         run: |
@@ -95,7 +95,7 @@ jobs:
           coverage: none
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-interaction
+        run: composer update --prefer-dist --no-interaction
 
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse
