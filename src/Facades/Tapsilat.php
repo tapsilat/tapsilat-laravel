@@ -45,6 +45,7 @@ use Tapsilat\TapsilatAPI;
  * @method static array refundOrderSimple(float $amount, string $referenceId, ?string $orderItemId = null, ?string $orderItemPaymentId = null)
  * @method static array refundAllOrder(string $referenceId)
  * @method static array getOrderPaymentDetails(string $referenceId, string $conversationId = '')
+ * @method static array getOrderPaymentDetailsById(string $referenceId)
  * @method static array getOrderStatus(string $referenceId)
  * @method static array getOrderTransactions(string $referenceId)
  * @method static array getOrderPayments(GetOrderPaymentsRequest $request)
@@ -58,6 +59,7 @@ use Tapsilat\TapsilatAPI;
  * @method static array relatedUpdate(string $id, string $relatedReferenceId)
  * @method static array terminateOrder(string $id)
  * @method static array manualCallback(string $id)
+ * @method static array orderCallback(string $referenceId)
  * 
  * Order Term Methods
  * @method static array getOrderTerm(string $termReferenceId)
@@ -85,7 +87,7 @@ use Tapsilat\TapsilatAPI;
  * @method static array getOrganizationSettings()
  * @method static array getOrganizationCurrencyPresets()
  * @method static array getSuborganizationDetails(string $referenceId)
- * @method static array getSuborganizationSubmerchants(string $referenceId, int $page = 1, int $perPage = 10)
+ * @method static array getSuborganizationSubmerchants(string $referenceId)
  * @method static array createOrganizationUserToken(OrgUserTokenCreateReq $request)
  * 
  * Submerchant Methods

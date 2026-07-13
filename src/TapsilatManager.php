@@ -39,6 +39,7 @@ use Tapsilat\Models\TerminateRequest;
 use Tapsilat\Models\OrderManualCallbackDTO;
 use Tapsilat\Models\OrderPaymentTermDeleteDTO;
 use Tapsilat\Models\GetOrderPaymentsRequest;
+use Tapsilat\Models\OrderPaymentDetailRequest;
 use Tapsilat\Models\OrderRefundRequestDTO;
 use Tapsilat\Models\OrderOIPDTO;
 use Tapsilat\Models\OrderPaymentOptionsUpdateDTO;
@@ -249,7 +250,17 @@ class TapsilatManager
      */
     public function getOrderPaymentDetails(string $referenceId, string $conversationId = ''): array
     {
-        return $this->client()->getOrderPaymentDetails(new OrderPaymentDetailDTO($referenceId, $conversationId));
+        return $this->client()->getOrderPaymentDetails(new OrderPaymentDetailRequest($referenceId, $conversationId));
+    }
+
+    public function getOrderPaymentDetailsById(string $referenceId): array
+    {
+        return $this->client()->getOrderPaymentDetailsById($referenceId);
+    }
+
+    public function orderCallback(string $referenceId): array
+    {
+        return $this->client()->orderCallback($referenceId);
     }
 
     /**
@@ -748,12 +759,12 @@ class TapsilatManager
 
     public function getSuborganizationDetails(string $referenceId): array
     {
-        return $this->client()->getSuborganizationDetails($referenceId);
+        return $this->client()->getOrganizationSuborganizationDetails($referenceId);
     }
 
-    public function getSuborganizationSubmerchants(string $referenceId, int $page = 1, int $perPage = 10): array
+    public function getSuborganizationSubmerchants(string $referenceId): array
     {
-        return $this->client()->getSuborganizationSubmerchants($referenceId, $page, $perPage);
+        return $this->client()->getOrganizationSuborganizationSubmerchants($referenceId);
     }
 
     public function createOrganizationUserToken(OrgUserTokenCreateReq $request): array
