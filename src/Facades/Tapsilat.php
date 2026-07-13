@@ -15,7 +15,7 @@ use Tapsilat\Models\SubscriptionGetRequest;
 use Tapsilat\Models\SubscriptionCancelRequest;
 use Tapsilat\Models\SubscriptionRedirectRequest;
 use Tapsilat\Models\SubscriptionCreateResponse;
-use Tapsilat\Models\SubscriptionDetail;
+use Tapsilat\Models\SubscriptionDetailResponse;
 use Tapsilat\Models\SubscriptionRedirectResponse;
 use Tapsilat\TapsilatAPI;
 
@@ -29,7 +29,7 @@ use Tapsilat\TapsilatAPI;
  * @method static OrderResponse getOrder(string $referenceId)
  * @method static OrderResponse getOrderByConversationId(string $conversationId)
  * @method static array getOrderList(int $page = 1, int $perPage = 10, string $startDate = '', string $endDate = '', string $organizationId = '', string $relatedReferenceId = '')
- * @method static array getOrders(string $page = '1', string $perPage = '10', string $buyerId = '')
+ * @method static array getOrders(string $page = '1', string $perPage = '10', string $buyerId = '', ?int $status = null)
  * @method static array getOrderSubmerchants(int $page = 1, int $perPage = 10)
  * @method static string getCheckoutUrl(string $referenceId)
  * @method static array cancelOrder(string $referenceId)
@@ -53,9 +53,9 @@ use Tapsilat\TapsilatAPI;
  * 
  * Subscription Methods
  * @method static SubscriptionCreateResponse createSubscription(SubscriptionCreateRequest $subscription)
- * @method static SubscriptionDetail getSubscription(SubscriptionGetRequest $request)
- * @method static SubscriptionDetail getSubscriptionByReferenceId(string $referenceId)
- * @method static SubscriptionDetail getSubscriptionByExternalId(string $externalReferenceId)
+ * @method static SubscriptionDetailResponse getSubscription(SubscriptionGetRequest $request)
+ * @method static SubscriptionDetailResponse getSubscriptionByReferenceId(string $referenceId)
+ * @method static SubscriptionDetailResponse getSubscriptionByExternalId(string $externalReferenceId)
  * @method static array listSubscriptions(int $page = 1, int $perPage = 10)
  * @method static array cancelSubscription(SubscriptionCancelRequest $request)
  * @method static array cancelSubscriptionByReferenceId(string $referenceId)

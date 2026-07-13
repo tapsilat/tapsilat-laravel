@@ -3,7 +3,6 @@
 /.phpunit.cache/
 /.phpstan.cache/
 /coverage/
-composer.lock
 .env
 .env.backup
 *exhaustive-verify*
@@ -16,4 +15,4 @@ Thumbs.db
 *.swo
 .idea/
 .vscode/
-.docker
+.dockercomposer.lock

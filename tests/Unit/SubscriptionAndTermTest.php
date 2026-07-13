@@ -6,7 +6,7 @@ use Tapsilat\Models\SubscriptionCreateRequest;
 use Tapsilat\Models\SubscriptionGetRequest;
 use Tapsilat\Models\SubscriptionCancelRequest;
 use Tapsilat\Models\SubscriptionCreateResponse;
-use Tapsilat\Models\SubscriptionDetail;
+use Tapsilat\Models\SubscriptionDetailResponse;
 use Tapsilat\Models\OrderPaymentTermCreateDTO;
 use Tapsilat\Models\OrderPaymentTermUpdateDTO;
 use Tapsilat\Models\OrderTermRefundRequest;
@@ -62,7 +62,7 @@ describe('Subscription Operations', function () {
             'period' => 30
         ];
 
-        $mockDetail = Mockery::mock(SubscriptionDetail::class);
+        $mockDetail = Mockery::mock(SubscriptionDetailResponse::class);
         $mockDetail->shouldReceive('get')->with('reference_id')->andReturn('sub-ref-456');
         $mockDetail->shouldReceive('get')->with('amount')->andReturn(149.99);
         $mockDetail->shouldReceive('get')->with('status')->andReturn('ACTIVE');
@@ -77,14 +77,14 @@ describe('Subscription Operations', function () {
 
         $result = $this->manager->getSubscription($request);
 
-        expect($result)->toBeInstanceOf(SubscriptionDetail::class);
+        expect($result)->toBeInstanceOf(SubscriptionDetailResponse::class);
         expect($result->get('reference_id'))->toBe('sub-ref-456');
     });
 
     test('getSubscriptionByReferenceId uses correct request', function () {
         $referenceId = 'sub-ref-789';
 
-        $mockDetail = Mockery::mock(SubscriptionDetail::class);
+        $mockDetail = Mockery::mock(SubscriptionDetailResponse::class);
 
         $this->apiMock
             ->shouldReceive('getSubscription')
@@ -97,7 +97,7 @@ describe('Subscription Operations', function () {
 
         $result = $this->manager->getSubscriptionByReferenceId($referenceId);
 
-        expect($result)->toBeInstanceOf(SubscriptionDetail::class);
+        expect($result)->toBeInstanceOf(SubscriptionDetailResponse::class);
     });
 
     test('listSubscriptions returns paginated list', function () {
@@ -287,7 +287,7 @@ describe('Order Term Operations', function () {
         ];
 
         $this->apiMock
-            ->shouldReceive('terminateOrder')
+            ->shouldReceive('orderTerminate')
             ->once()
             ->with(Mockery::on(function ($arg) use ($referenceId) {
                 return $arg instanceof \Tapsilat\Models\TerminateRequest
@@ -313,7 +313,7 @@ describe('Order Term Operations', function () {
         ];
 
         $this->apiMock
-            ->shouldReceive('manualCallback')
+            ->shouldReceive('orderManualCallback')
             ->once()
             ->with(Mockery::on(function ($arg) use ($referenceId, $conversationId) {
                 return $arg instanceof \Tapsilat\Models\OrderManualCallbackDTO
@@ -338,7 +338,7 @@ describe('Order Term Operations', function () {
         ];
 
         $this->apiMock
-            ->shouldReceive('relatedUpdate')
+            ->shouldReceive('orderRelatedUpdate')
             ->once()
             ->with(Mockery::on(function ($arg) use ($referenceId, $relatedReferenceId) {
                 return $arg instanceof \Tapsilat\Models\OrderRelatedReferenceDTO
@@ -380,9 +380,9 @@ describe('Organization & Health', function () {
         ];
 
         $this->apiMock
-            ->shouldReceive('healthCheck')
+            ->shouldReceive('getSystemErrorCodes')
             ->once()
-            ->andReturn($expectedResponse);
+            ->andReturn([]);
 
         $result = $this->manager->healthCheck();
 

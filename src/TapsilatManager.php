@@ -18,7 +18,7 @@ use Tapsilat\Models\SubscriptionGetRequest;
 use Tapsilat\Models\SubscriptionCancelRequest;
 use Tapsilat\Models\SubscriptionRedirectRequest;
 use Tapsilat\Models\SubscriptionCreateResponse;
-use Tapsilat\Models\SubscriptionDetail;
+use Tapsilat\Models\SubscriptionDetailResponse;
 use Tapsilat\Models\SubscriptionRedirectResponse;
 use Tapsilat\Models\OrderAccountingRequest;
 use Tapsilat\Models\OrderPostAuthRequest;
@@ -26,7 +26,7 @@ use Tapsilat\Models\OrderRelatedReferenceDTO;
 use Tapsilat\Models\AddBasketItemRequest;
 use Tapsilat\Models\RemoveBasketItemRequest;
 use Tapsilat\Models\UpdateBasketItemRequest;
-use Tapsilat\Models\CallbackURLDTO;
+use Tapsilat\Models\UpdateCallbackURLRequest;
 use Tapsilat\Models\OrgCreateBusinessRequest;
 use Tapsilat\Models\GetUserLimitRequest;
 use Tapsilat\Models\SetLimitUserRequest;
@@ -38,6 +38,14 @@ use Tapsilat\Models\RefundAllOrderDTO;
 use Tapsilat\Models\TerminateRequest;
 use Tapsilat\Models\OrderManualCallbackDTO;
 use Tapsilat\Models\OrderPaymentTermDeleteDTO;
+use Tapsilat\Models\SplitOrderItemPaymentRequest;
+use Tapsilat\Models\SubmerchantUpdateDTO;
+use Tapsilat\Models\GetOrderPaymentsRequest;
+use Tapsilat\Models\OrderPaymentOptionsUpdateRequest;
+use Tapsilat\Models\OrgUserTokenCreateReq;
+use Tapsilat\Models\OrderOIPDTO;
+use Tapsilat\Models\RefundOrderRequest;
+use Tapsilat\Models\SubmerchantCreateDTO;
 use Tapsilat\TapsilatAPI;
 
 class TapsilatManager
@@ -131,6 +139,7 @@ class TapsilatManager
             null, // basket_items
             null, // billing_address
             null, // checkout_design
+            null, // consents
             $conversationId
         );
 
@@ -172,9 +181,9 @@ class TapsilatManager
     /**
      * Get orders with pagination.
      */
-    public function getOrders(string $page = '1', string $perPage = '10', string $buyerId = ''): array
+    public function getOrders(string $page = '1', string $perPage = '10', string $buyerId = '', ?int $status = null): array
     {
-        return $this->client()->getOrders($page, $perPage, $buyerId);
+        return $this->client()->getOrders($page, $perPage, $buyerId, $status);
     }
 
     /**
@@ -355,7 +364,7 @@ class TapsilatManager
     public function orderTerminate(string $referenceId): array
     {
         $this->log('Terminating order', ['reference_id' => $referenceId]);
-        return $this->client()->terminateOrder(new TerminateRequest($referenceId));
+        return $this->client()->orderTerminate(new TerminateRequest($referenceId));
     }
 
     /**
@@ -367,7 +376,7 @@ class TapsilatManager
             'reference_id' => $referenceId,
             'conversation_id' => $conversationId,
         ]);
-        return $this->client()->manualCallback(new OrderManualCallbackDTO($referenceId, $conversationId));
+        return $this->client()->orderManualCallback(new OrderManualCallbackDTO($referenceId, $conversationId));
     }
 
     /**
@@ -379,7 +388,7 @@ class TapsilatManager
             'reference_id' => $referenceId,
             'related_reference_id' => $relatedReferenceId,
         ]);
-        return $this->client()->relatedUpdate(new OrderRelatedReferenceDTO($referenceId, $relatedReferenceId));
+        return $this->client()->orderRelatedUpdate(new OrderRelatedReferenceDTO($referenceId, $relatedReferenceId));
     }
 
     /**
@@ -438,7 +447,7 @@ class TapsilatManager
     /**
      * Get subscription details.
      */
-    public function getSubscription(SubscriptionGetRequest $request): SubscriptionDetail
+    public function getSubscription(SubscriptionGetRequest $request): SubscriptionDetailResponse
     {
         return $this->client()->getSubscription($request);
     }
@@ -446,7 +455,7 @@ class TapsilatManager
     /**
      * Get subscription by reference ID.
      */
-    public function getSubscriptionByReferenceId(string $referenceId): SubscriptionDetail
+    public function getSubscriptionByReferenceId(string $referenceId): SubscriptionDetailResponse
     {
         $request = new SubscriptionGetRequest($referenceId, null);
         return $this->getSubscription($request);
@@ -455,7 +464,7 @@ class TapsilatManager
     /**
      * Get subscription by external reference ID.
      */
-    public function getSubscriptionByExternalId(string $externalReferenceId): SubscriptionDetail
+    public function getSubscriptionByExternalId(string $externalReferenceId): SubscriptionDetailResponse
     {
         $request = new SubscriptionGetRequest(null, $externalReferenceId);
         return $this->getSubscription($request);
@@ -527,7 +536,7 @@ class TapsilatManager
     /**
      * Update organization callback URLs.
      */
-    public function updateOrganizationCallback(CallbackURLDTO $request): array
+    public function updateOrganizationCallback(UpdateCallbackURLRequest $request): array
     {
         $this->log('Updating organization callback');
         return $this->client()->updateOrganizationCallback($request);
@@ -643,7 +652,12 @@ class TapsilatManager
      */
     public function healthCheck(): array
     {
-        return $this->client()->healthCheck();
+        try {
+            $this->client()->getSystemErrorCodes();
+            return ['status' => 'UP'];
+        } catch (\Exception $e) {
+            return ['status' => 'unhealthy', 'error' => $e->getMessage()];
+        }
     }
 
     /**
@@ -653,6 +667,171 @@ class TapsilatManager
     {
         $secret = $secret ?? $this->config['webhook_secret'] ?? '';
         return TapsilatAPI::verifyWebhook($payload, $signature, $secret);
+    }
+
+
+    // =========================================================================
+    // Synced Methods from Python/PHP Updates
+    // =========================================================================
+
+    public function setDebug($debug)
+    {
+        return $this->client()->setDebug($debug);
+    }
+
+    public function getSystemBasketItemTypes()
+    {
+        return $this->client()->getSystemBasketItemTypes();
+    }
+
+    public function getSystemErrorCodes()
+    {
+        return $this->client()->getSystemErrorCodes();
+    }
+
+    public function getSystemPaymentTermStatuses()
+    {
+        return $this->client()->getSystemPaymentTermStatuses();
+    }
+
+    public function getSystemProductTypes()
+    {
+        return $this->client()->getSystemProductTypes();
+    }
+
+    public function getSystemShortcutTypes()
+    {
+        return $this->client()->getSystemShortcutTypes();
+    }
+
+    public function getSystemTransactionPaymentTypes()
+    {
+        return $this->client()->getSystemTransactionPaymentTypes();
+    }
+
+    public function getSystemTransactionPurposes()
+    {
+        return $this->client()->getSystemTransactionPurposes();
+    }
+
+    public function getSystemTransactionStatuses()
+    {
+        return $this->client()->getSystemTransactionStatuses();
+    }
+
+    public function relatedUpdate(string $id, array $payload)
+    {
+        return $this->client()->relatedUpdate($id, $payload);
+    }
+
+    public function terminateOrder(string $id)
+    {
+        return $this->client()->terminateOrder($id);
+    }
+
+    public function manualCallback(string $id)
+    {
+        return $this->client()->manualCallback($id);
+    }
+
+    public function getOrderPayments(GetOrderPaymentsRequest $request)
+    {
+        return $this->client()->getOrderPayments($request);
+    }
+
+    public function getOrderPdf(string $id)
+    {
+        return $this->client()->getOrderPdf($id);
+    }
+
+    public function getOrderExcel(string $id)
+    {
+        return $this->client()->getOrderExcel($id);
+    }
+
+    public function createOrderRefundRequest(RefundOrderRequest $dto)
+    {
+        return $this->client()->createOrderRefundRequest($dto);
+    }
+
+    public function addOrderOip(OrderOIPDTO $dto)
+    {
+        return $this->client()->addOrderOip($dto);
+    }
+
+    public function getOrderPaymentDetailsById($referenceId)
+    {
+        return $this->client()->getOrderPaymentDetailsById($referenceId);
+    }
+
+    public function updatePaymentOptions(OrderPaymentOptionsUpdateRequest $request)
+    {
+        return $this->client()->updatePaymentOptions($request);
+    }
+
+    public function splitOrderItemPayment(SplitOrderItemPaymentRequest $request)
+    {
+        return $this->client()->splitOrderItemPayment($request);
+    }
+
+    public function orderCallback($id)
+    {
+        return $this->client()->orderCallback($id);
+    }
+
+    public function orderVposQuery($id)
+    {
+        return $this->client()->orderVposQuery($id);
+    }
+
+    public function getOrganizationSuborganizationDetails(string $id)
+    {
+        return $this->client()->getOrganizationSuborganizationDetails($id);
+    }
+
+    public function getOrganizationSuborganizationSubmerchants(string $id)
+    {
+        return $this->client()->getOrganizationSuborganizationSubmerchants($id);
+    }
+
+    public function getOrganizationCurrencyPresets()
+    {
+        return $this->client()->getOrganizationCurrencyPresets();
+    }
+
+    public function createOrganizationUserToken(OrgUserTokenCreateReq $request)
+    {
+        return $this->client()->createOrganizationUserToken($request);
+    }
+
+    public function createSubmerchant(SubmerchantCreateDTO $request)
+    {
+        return $this->client()->createSubmerchant($request);
+    }
+
+    public function getSubmerchant(string $id)
+    {
+        return $this->client()->getSubmerchant($id);
+    }
+
+    public function getSuborganizationBySubmerchant(string $id)
+    {
+        return $this->client()->getSuborganizationBySubmerchant($id);
+    }
+
+    public function updateSubmerchant(string $id, SubmerchantUpdateDTO $request)
+    {
+        return $this->client()->updateSubmerchant($id, $request);
+    }
+
+    public function deleteSubmerchant(string $id)
+    {
+        return $this->client()->deleteSubmerchant($id);
+    }
+
+    public function listSubmerchants(int $page = 1, int $perPage = 10)
+    {
+        return $this->client()->listSubmerchants($page, $perPage);
     }
 
     // =========================================================================
