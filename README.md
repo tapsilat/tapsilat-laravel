@@ -8,7 +8,7 @@ Laravel integration package for the Tapsilat Payment Gateway. This package provi
 
 ## Requirements
 
-- PHP 8.1+
+- PHP 8.2+
 - Laravel 10.x or 11.x
 
 ## Installation
@@ -255,6 +255,28 @@ $subscriptions = Tapsilat::listSubscriptions(page: 1, perPage: 10);
 
 // Cancel subscription
 Tapsilat::cancelSubscriptionByReferenceId('sub-reference-id');
+```
+
+### Submerchant Operations
+
+```php
+use Tapsilat\Laravel\Facades\Tapsilat;
+use Tapsilat\Models\SubmerchantCreateDTO;
+
+$dto = new SubmerchantCreateDTO(
+    name: 'Sample Submerchant',
+    email: 'submerchant@example.com',
+    iban: 'TR120000000000000000000000',
+    gsm_number: '5551234567',
+    identity_number: '11111111111',
+    address: 'Sample Address'
+);
+
+// Create submerchant
+$submerchant = Tapsilat::createSubmerchant($dto);
+
+// Get submerchant details
+$details = Tapsilat::getSubmerchant('submerchant-reference-id');
 ```
 
 ### Organization Settings
