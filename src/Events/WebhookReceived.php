@@ -4,10 +4,14 @@ namespace Tapsilat\Laravel\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Tapsilat\Laravel\Events\Concerns\ReadsWebhookPayload;
 
+/**
+ * Dispatched for every verified callback, before the status-specific events.
+ */
 class WebhookReceived
 {
-    use Dispatchable, SerializesModels;
+    use Dispatchable, SerializesModels, ReadsWebhookPayload;
 
     /**
      * The webhook payload.
@@ -23,19 +27,11 @@ class WebhookReceived
     }
 
     /**
-     * Get the event type from the payload.
+     * Get the event type: the payload's "event" field when it has one, else the callback type.
      */
     public function getEventType(): ?string
     {
-        return $this->payload['event'] ?? null;
-    }
-
-    /**
-     * Get the reference ID from the payload.
-     */
-    public function getReferenceId(): ?string
-    {
-        return $this->payload['reference_id'] ?? null;
+        return $this->stringValue($this->payload['event'] ?? null) ?? $this->getType();
     }
 
     /**
@@ -43,6 +39,6 @@ class WebhookReceived
      */
     public function getData(): array
     {
-        return $this->payload['data'] ?? $this->payload;
+        return is_array($this->payload['data'] ?? null) ? $this->payload['data'] : $this->payload;
     }
 }

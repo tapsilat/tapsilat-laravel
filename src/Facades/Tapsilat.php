@@ -31,7 +31,7 @@ use Tapsilat\TapsilatAPI;
  * @method static array getOrderList(int $page = 1, int $perPage = 10, string $startDate = '', string $endDate = '', string $organizationId = '', string $relatedReferenceId = '')
  * @method static array getOrders(string $page = '1', string $perPage = '10', string $buyerId = '', ?int $status = null)
  * @method static array getOrderSubmerchants(int $page = 1, int $perPage = 10)
- * @method static string getCheckoutUrl(string $referenceId)
+ * @method static string|null getCheckoutUrl(string $referenceId)
  * @method static array cancelOrder(string $referenceId)
  * @method static array refundOrder(RefundOrderDTO $refundData)
  * @method static array refundOrderSimple(float $amount, string $referenceId, ?string $orderItemId = null, ?string $orderItemPaymentId = null)
@@ -47,7 +47,6 @@ use Tapsilat\TapsilatAPI;
  * @method static array updateOrderTerm(OrderPaymentTermUpdateDTO $term)
  * @method static array refundOrderTerm(OrderTermRefundRequest $term)
  * @method static array orderTerminate(string $referenceId)
- * @method static array terminateOrderTerm(string $termReferenceId, string $reason = '')
  * @method static array orderManualCallback(string $referenceId, string $conversationId = '')
  * @method static array orderRelatedUpdate(string $referenceId, string $relatedReferenceId)
  * 
@@ -67,7 +66,13 @@ use Tapsilat\TapsilatAPI;
  * 
  * Health & Webhook Methods
  * @method static array healthCheck()
- * @method static bool verifyWebhook(string $payload, string $signature, ?string $secret = null)
+ * @method static bool verifyWebhook(string $payload, string $signature, ?string $secret = null, ?int $tolerance = null)
+ *
+ * Any other Tapsilat\TapsilatAPI method is forwarded to the client, for example:
+ * @method static array chargeOrder(\Tapsilat\Models\OrderChargeRequest $request)
+ * @method static array getCardInstallments(\Tapsilat\Models\CardInstallmentsRequest $request)
+ * @method static array getInstallmentTable(\Tapsilat\Models\InstallmentTableRequest $request)
+ * @method static array getOrganizationLimitsById(string $id, array $params = [])
  *
  * @see \Tapsilat\Laravel\TapsilatManager
  */

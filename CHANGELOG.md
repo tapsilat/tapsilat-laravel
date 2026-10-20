@@ -4,6 +4,29 @@ All notable changes to `tapsilat-laravel` will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- Webhooks: verify the `Tapsilat-Signature: t=...,v1=...` header Tapsilat actually sends (HMAC-SHA256 of
+  `timestamp.body`, 5-minute replay tolerance via `TAPSILAT_WEBHOOK_TOLERANCE`). The endpoint read
+  `X-Tapsilat-Signature` with a body-only HMAC, so it answered 401 to every real callback.
+- Webhooks: dispatch `OrderPaid`, `OrderFailed` and `OrderRefunded` from the order status in Tapsilat's
+  `{type, data, token}` callbacks. They matched an `event` field that callbacks never carry.
+- Event getters read the reference ID, conversation ID and order ID from every callback type.
+- `getCheckoutUrl()` returns `null` instead of throwing a `TypeError` when an order has no checkout URL.
+- `manualCallback()` passes the optional conversation ID.
+- Require a released `tapsilat/tapsilat-php` instead of `dev-main`.
+
+### Added
+
+- Any `TapsilatAPI` method the manager does not wrap (charge, card installments, VPOS, tokenization,
+  marketplace, ...) is forwarded to the client through the facade.
+- `getOrganizationLimitsById()`.
+
+### Deprecated
+
+- `getOrganizationLimits()`, `getOrganizationLimitUser()` and `setOrganizationLimitUser()`: the panel has no
+  such routes.
+
 ## [1.0.0] - 2024-12-17
 
 ### Added

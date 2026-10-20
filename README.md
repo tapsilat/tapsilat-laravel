@@ -300,20 +300,28 @@ $health = Tapsilat::healthCheck();
 
 ## Webhook Handling
 
-The package automatically registers a webhook endpoint at `/tapsilat/webhook` when you have configured `TAPSILAT_WEBHOOK_SECRET`.
+The package automatically registers a webhook endpoint at `/tapsilat/webhook` when you have configured `TAPSILAT_WEBHOOK_SECRET`. Use the webhook secret shown in your Tapsilat panel's callback settings, and enter `https://yoursite.com/tapsilat/webhook` as your callback URLs there.
+
+Tapsilat sends each callback as `{"type": "...", "data": {...}, "token": "..."}` with a `Tapsilat-Signature: t=<unix time>,v1=<hex HMAC-SHA256>` header. The endpoint verifies the signature against the secret, rejects callbacks whose timestamp is more than `TAPSILAT_WEBHOOK_TOLERANCE` seconds (default 300) from the server clock, and answers `401` to anything it cannot verify.
 
 ### Available Events
 
-Listen to these events in your application:
+Every verified callback dispatches `WebhookReceived`. Then, depending on the order status the callback carries:
+
+| Event | Order status |
+|-------|--------------|
+| `OrderPaid` | Paid, Completed, Sub merchant payment approved |
+| `OrderFailed` | Cancelled, Fraud, Rejected, Failure, Expired, Terminated |
+| `OrderRefunded` | Refunded, Partially refunded |
+
+The callback types `order_lite` (the default), `order` and `order_payment_detail` carry a status; `extended_order` and `payment_facilitator` callbacks dispatch only `WebhookReceived`. Every event has `getReferenceId()`, `getConversationId()`, `getOrderId()`, `getType()`, `getStatus()` and `getStatusCode()`, whichever callback type your organization uses.
+
+The `Subscription*` events are dispatched only for payloads with an `event` field such as `subscription.created`; Tapsilat's own callbacks are order callbacks, so a subscription payment arrives as `OrderPaid` for its order.
 
 ```php
 use Tapsilat\Laravel\Events\OrderPaid;
 use Tapsilat\Laravel\Events\OrderFailed;
 use Tapsilat\Laravel\Events\OrderRefunded;
-use Tapsilat\Laravel\Events\SubscriptionCreated;
-use Tapsilat\Laravel\Events\SubscriptionCanceled;
-use Tapsilat\Laravel\Events\SubscriptionPaymentSucceeded;
-use Tapsilat\Laravel\Events\SubscriptionPaymentFailed;
 use Tapsilat\Laravel\Events\WebhookReceived;
 ```
 
@@ -330,8 +338,7 @@ class HandleOrderPaid
     public function handle(OrderPaid $event): void
     {
         $referenceId = $event->getReferenceId();
-        $amount = $event->getAmount();
-        $currency = $event->getCurrency();
+        $conversationId = $event->getConversationId();
 
         // Update your order status
         // Send confirmation email
@@ -339,6 +346,8 @@ class HandleOrderPaid
     }
 }
 ```
+
+Callbacks can be delivered more than once, so make listeners idempotent. To act only on the authoritative status, you can also look it up with `Tapsilat::getOrderStatus($event->getReferenceId())`.
 
 ### Registering Listeners
 
@@ -362,19 +371,23 @@ protected $listen = [
 
 ### Manual Webhook Verification
 
-If you need to handle webhooks manually:
+If you need to handle webhooks in your own route:
 
 ```php
 use Tapsilat\Laravel\Facades\Tapsilat;
+use Tapsilat\WebhookEvent;
 
 $payload = request()->getContent();
-$signature = request()->header('X-Tapsilat-Signature');
+$signature = request()->header('Tapsilat-Signature', '');
 
 if (Tapsilat::verifyWebhook($payload, $signature)) {
-    // Process webhook
-    $data = json_decode($payload, true);
+    $event = WebhookEvent::fromPayload($payload);
+    $event->getReferenceId();
+    $event->isPaid();
 }
 ```
+
+You can also protect your own route with the `Tapsilat\Laravel\Http\Middleware\VerifyWebhookSignature` middleware.
 
 ## Accessing the Raw API Client
 
