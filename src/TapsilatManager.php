@@ -101,10 +101,14 @@ class TapsilatManager
     // =========================================================================
 
     /**
-     * Create a new order.
+     * Create a new order. The configured payment success and failure URLs apply when the order
+     * does not set its own.
      */
     public function createOrder(OrderCreateDTO $order): OrderResponse
     {
+        $order->payment_success_url ??= $this->config['payment_success_url'] ?? null;
+        $order->payment_failure_url ??= $this->config['payment_failure_url'] ?? null;
+
         $this->log('Creating order', ['amount' => $order->amount, 'currency' => $order->currency]);
 
         try {
@@ -250,7 +254,9 @@ class TapsilatManager
      */
     public function getOrderPaymentDetails(string $referenceId, string $conversationId = ''): array
     {
-        return $this->client()->getOrderPaymentDetails(new OrderPaymentDetailDTO($referenceId, $conversationId));
+        return $this->client()->getOrderPaymentDetails(
+            new OrderPaymentDetailDTO($referenceId, $conversationId !== '' ? $conversationId : null)
+        );
     }
 
     /**
@@ -376,7 +382,9 @@ class TapsilatManager
             'reference_id' => $referenceId,
             'conversation_id' => $conversationId,
         ]);
-        return $this->client()->orderManualCallback(new OrderManualCallbackDTO($referenceId, $conversationId));
+        return $this->client()->orderManualCallback(
+            new OrderManualCallbackDTO($referenceId, $conversationId !== '' ? $conversationId : null)
+        );
     }
 
     /**

@@ -95,8 +95,9 @@ return [
     | Payment URLs
     |--------------------------------------------------------------------------
     |
-    | Default URLs for payment success and failure redirects.
-    | These can be overridden per order.
+    | The payment_success_url and payment_failure_url of orders that do not
+    | set their own. Tapsilat posts a signed callback to them when a payment
+    | succeeds or fails.
     |
     */
 

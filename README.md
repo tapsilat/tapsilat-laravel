@@ -200,6 +200,35 @@ $postAuthRequest = new OrderPostAuthRequest(100.00, 'order-reference-id');
 Tapsilat::orderPostAuth($postAuthRequest);
 ```
 
+### Charging, Filtering and Payment Details
+
+```php
+use Tapsilat\Laravel\Facades\Tapsilat;
+use Tapsilat\Models\GetOrderPaymentsRequest;
+use Tapsilat\Models\OrderChargeRequest;
+use Tapsilat\Models\OrderListFilter;
+
+// Charge an order with a saved card; the charge response keys are camelCase
+$result = Tapsilat::chargeOrder(new OrderChargeRequest('order-reference-id'));
+if (empty($result['isSuccess'])) {
+    // $result['errorCode'], $result['message']
+}
+
+// List orders with any of the panel's filters (status is the numeric order status)
+$orders = Tapsilat::getOrderListWithFilter(new OrderListFilter([
+    'page' => 1, 'per_page' => 50, 'buyer_id' => 'buyer-1', 'status' => 3,
+]));
+
+// Payment details by reference ID or by conversation ID
+$details = Tapsilat::getOrderPaymentDetails('order-reference-id');
+$details = Tapsilat::getOrderPaymentDetailsByConversationId('conversation-id');
+
+// Payments of one order (arguments: order ID, conversation ID, order reference ID; set one)
+$payments = Tapsilat::getOrderPayments(new GetOrderPaymentsRequest(null, null, 'order-reference-id'));
+```
+
+Payment success and failure URLs set with `TAPSILAT_PAYMENT_SUCCESS_URL` and `TAPSILAT_PAYMENT_FAILURE_URL` apply to every order that does not set its own. Tapsilat posts a signed callback to them when a payment succeeds or fails.
+
 ### Subscription Operations
 
 ```php
@@ -262,21 +291,128 @@ Tapsilat::cancelSubscriptionByReferenceId('sub-reference-id');
 ```php
 use Tapsilat\Laravel\Facades\Tapsilat;
 use Tapsilat\Models\SubmerchantCreateDTO;
+use Tapsilat\Models\SubmerchantPaymentAction;
+use Tapsilat\Models\SubmerchantPaymentItemUpdate;
+use Tapsilat\Models\SubmerchantPayoutEventRequest;
 
+// PERSONAL submerchants need identity_number; PRIVATE_COMPANY and
+// LIMITED_OR_JOINT_STOCK_COMPANY ones need tax_number.
 $dto = new SubmerchantCreateDTO(
-    name: 'Sample Submerchant',
+    address: 'Sample Address',
+    city: 'Istanbul',
+    country: 'Turkey',
     email: 'submerchant@example.com',
+    gsm_number: '+905551234567',
     iban: 'TR120000000000000000000000',
-    gsm_number: '5551234567',
     identity_number: '11111111111',
-    address: 'Sample Address'
+    name: 'Sample Submerchant',
+    contact_name: 'Jane',
+    contact_surname: 'Doe',
+    sub_merchant_type: 'PERSONAL',
+    tax_office: 'Kadikoy',
+    zip_code: '34000',
+    locale: 'tr',
+    conversation_id: 'submerchant-conversation-id'
 );
 
-// Create submerchant
-$submerchant = Tapsilat::createSubmerchant($dto);
+// Create, read and list submerchants
+Tapsilat::createSubmerchant($dto);
+$details = Tapsilat::getSubmerchant('submerchant-id');
+$submerchants = Tapsilat::listSubmerchants(page: 1, perPage: 10);
 
-// Get submerchant details
-$details = Tapsilat::getSubmerchant('submerchant-reference-id');
+// Approve or disapprove a submerchant payment, or change its share
+$action = new SubmerchantPaymentAction([
+    'locale' => 'tr', 'conversation_id' => 'conv-1', 'payment_transaction_id' => 'tx-1', 'acquirer' => 'acquirer',
+]);
+Tapsilat::approveSubmerchantPayment($action);
+Tapsilat::disapproveSubmerchantPayment($action);
+Tapsilat::updateSubmerchantPaymentItem(new SubmerchantPaymentItemUpdate([
+    'locale' => 'tr', 'conversation_id' => 'conv-1', 'payment_transaction_id' => 'tx-1',
+    'sub_merchant_key' => 'key-1', 'sub_merchant_price' => '60.25', 'acquirer' => 'acquirer',
+]));
+
+// Record a payout event, such as a delivery
+Tapsilat::recordSubmerchantPayoutEvent(new SubmerchantPayoutEventRequest([
+    'idempotency_key' => 'event-1', 'order_reference' => 'order-reference-id', 'item_id' => 'item-1', 'event_type' => 'DELIVERED',
+]));
+```
+
+### Card Installments and Saved Cards
+
+```php
+use Tapsilat\Laravel\Facades\Tapsilat;
+use Tapsilat\Models\CardInstallmentsRequest;
+use Tapsilat\Models\CardTokenizeRequest;
+use Tapsilat\Models\InstallmentTableRequest;
+
+$options = Tapsilat::getCardInstallments(new CardInstallmentsRequest([
+    'bin' => '54066200', 'amount' => 1000, 'currency' => 'TRY', 'is_three_d' => true,
+]));
+$table = Tapsilat::getInstallmentTable(new InstallmentTableRequest(['amount' => 1000, 'currency' => 'TRY']));
+
+$card = Tapsilat::tokenizeCard(new CardTokenizeRequest([
+    'card_number' => '4111111111111111', 'holder_name' => 'John Doe',
+    'expiry_month' => '12', 'expiry_year' => '30', 'cvv' => '123',
+]));
+$cards = Tapsilat::listSavedCards(1, 10);
+Tapsilat::deleteSavedCard('card-id');
+```
+
+### Virtual POS
+
+A VPOS update replaces the whole configuration (fields left out are stored as empty or false), so read it first and send every field back.
+
+```php
+use Tapsilat\Laravel\Facades\Tapsilat;
+use Tapsilat\Models\VposUpdateRequest;
+
+$vpos = Tapsilat::getVpos('vpos-id');
+$fields = array_intersect_key($vpos, get_class_vars(VposUpdateRequest::class));
+Tapsilat::updateVpos('vpos-id', new VposUpdateRequest(array_merge($fields, ['failover' => true])));
+
+$list = Tapsilat::listVpos(1, 10);
+$acquirers = Tapsilat::listVposAcquirers();
+$submerchants = Tapsilat::listVposSubmerchants(1, 10, 'vpos-id');
+```
+
+### Marketplace (API v2)
+
+Marketplace calls use the `/api/v2` URL derived from `TAPSILAT_BASE_URL`. Seller and payout revisions are opaque strings: send them back exactly as received.
+
+```php
+use Tapsilat\Laravel\Facades\Tapsilat;
+use Tapsilat\Models\MarketplaceApprovalPolicyInput;
+use Tapsilat\Models\MarketplacePayoutApproval;
+use Tapsilat\Models\MarketplacePayoutFilter;
+use Tapsilat\Models\MarketplaceProfileUpdate;
+
+$seller = Tapsilat::getMarketplaceSubmerchant('seller-id');
+Tapsilat::updateMarketplaceSubmerchant('seller-id', new MarketplaceProfileUpdate([
+    'name' => 'New name', 'revision' => $seller['revision'],
+]));
+
+$payouts = Tapsilat::listMarketplacePayouts(new MarketplacePayoutFilter(['status' => 'WAITING_APPROVAL', 'page' => 1]));
+Tapsilat::approveMarketplacePayouts(new MarketplacePayoutApproval([
+    'ids' => array_column($payouts['rows'], 'id'),
+]));
+
+// The approval policy currency must be a UUID; a unit such as "TRY" is resolved for you
+Tapsilat::createMarketplaceApprovalPolicy(new MarketplaceApprovalPolicyInput([
+    'name' => 'Large orders', 'priority' => 1, 'min_amount' => '1000', 'currency_id' => 'TRY', 'mode' => 'manual',
+]));
+```
+
+### Currencies
+
+```php
+use Tapsilat\Laravel\Facades\Tapsilat;
+use Tapsilat\Models\CreateOrganizationCurrencyPayload;
+
+$currencies = Tapsilat::getOrganizationCurrencies();
+Tapsilat::createOrganizationCurrency(new CreateOrganizationCurrencyPayload('EUR'));
+
+// The currency UUID for a unit such as "TRY"; a UUID is returned as it is
+$currencyId = Tapsilat::resolveCurrencyId('TRY');
 ```
 
 ### Organization Settings
@@ -391,15 +527,14 @@ You can also protect your own route with the `Tapsilat\Laravel\Http\Middleware\V
 
 ## Accessing the Raw API Client
 
-If you need direct access to the underlying Tapsilat PHP SDK:
+Every `Tapsilat\TapsilatAPI` method is available on the facade: methods the manager does not define are forwarded to the client. You can also use the client directly:
 
 ```php
 use Tapsilat\Laravel\Facades\Tapsilat;
 
-$client = Tapsilat::client();
+$client = Tapsilat::client(); // Tapsilat\TapsilatAPI
 
-// Now you can use any method from the SDK directly
-$response = $client->makeCustomRequest(...);
+$pdf = $client->getOrderPdf('order-reference-id');
 ```
 
 ## Error Handling
