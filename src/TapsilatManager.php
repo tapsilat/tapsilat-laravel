@@ -195,9 +195,9 @@ class TapsilatManager
     }
 
     /**
-     * Get the checkout URL for an order.
+     * Get the checkout URL for an order, or null when the order has none.
      */
-    public function getCheckoutUrl(string $referenceId): string
+    public function getCheckoutUrl(string $referenceId): ?string
     {
         return $this->client()->getCheckoutUrl($referenceId);
     }
@@ -561,6 +561,8 @@ class TapsilatManager
 
     /**
      * Get organization user limit configuration.
+     *
+     * @deprecated The panel has no /organization/limit/user route, so this always fails.
      */
     public function getOrganizationLimitUser(GetUserLimitRequest $request): array
     {
@@ -569,6 +571,8 @@ class TapsilatManager
 
     /**
      * Set organization user limit configuration.
+     *
+     * @deprecated The panel has no /organization/limit/user route, so this always fails.
      */
     public function setOrganizationLimitUser(SetLimitUserRequest $request): array
     {
@@ -578,10 +582,20 @@ class TapsilatManager
 
     /**
      * Get organization transaction limits.
+     *
+     * @deprecated The panel has no /organization/limits route; use getOrganizationLimitsById().
      */
     public function getOrganizationLimits(): array
     {
         return $this->client()->getOrganizationLimits();
+    }
+
+    /**
+     * Get an organization's transaction limits.
+     */
+    public function getOrganizationLimitsById(string $id, array $params = []): array
+    {
+        return $this->client()->getOrganizationLimitsById($id, $params);
     }
 
     /**
@@ -661,12 +675,19 @@ class TapsilatManager
     }
 
     /**
-     * Verify webhook signature.
+     * Verify a callback's Tapsilat-Signature header ("t=<unix time>,v1=<hex HMAC-SHA256>") against the
+     * webhook secret, rejecting a timestamp more than the configured tolerance from now.
      */
-    public function verifyWebhook(string $payload, string $signature, ?string $secret = null): bool
-    {
+    public function verifyWebhook(
+        string $payload,
+        string $signature,
+        ?string $secret = null,
+        ?int $tolerance = null
+    ): bool {
         $secret = $secret ?? $this->config['webhook_secret'] ?? '';
-        return TapsilatAPI::verifyWebhook($payload, $signature, $secret);
+        $tolerance = $tolerance ?? (int) ($this->config['webhook_tolerance'] ?? TapsilatAPI::WEBHOOK_TOLERANCE);
+
+        return TapsilatAPI::verifyWebhook($payload, $signature, (string) $secret, $tolerance);
     }
 
 
@@ -729,9 +750,9 @@ class TapsilatManager
         return $this->client()->terminateOrder($id);
     }
 
-    public function manualCallback(string $id)
+    public function manualCallback(string $id, ?string $conversationId = null)
     {
-        return $this->client()->manualCallback($id);
+        return $this->client()->manualCallback($id, $conversationId);
     }
 
     public function getOrderPayments(GetOrderPaymentsRequest $request)
@@ -832,6 +853,21 @@ class TapsilatManager
     public function listSubmerchants(int $page = 1, int $perPage = 10)
     {
         return $this->client()->listSubmerchants($page, $perPage);
+    }
+
+    /**
+     * Forward any other SDK method, such as chargeOrder(), getCardInstallments(), the VPOS,
+     * tokenization and marketplace methods, to the Tapsilat API client.
+     *
+     * @throws \BadMethodCallException when the client has no such method
+     */
+    public function __call(string $method, array $parameters): mixed
+    {
+        if (!method_exists($this->client(), $method)) {
+            throw new \BadMethodCallException(sprintf('Method %s::%s does not exist.', static::class, $method));
+        }
+
+        return $this->client()->{$method}(...$parameters);
     }
 
     // =========================================================================

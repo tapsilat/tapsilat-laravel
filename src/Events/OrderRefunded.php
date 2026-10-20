@@ -4,10 +4,14 @@ namespace Tapsilat\Laravel\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Tapsilat\Laravel\Events\Concerns\ReadsWebhookPayload;
 
+/**
+ * Dispatched for a verified callback whose order status is Refunded or Partially refunded.
+ */
 class OrderRefunded
 {
-    use Dispatchable, SerializesModels;
+    use Dispatchable, SerializesModels, ReadsWebhookPayload;
 
     /**
      * The webhook payload.
@@ -23,27 +27,13 @@ class OrderRefunded
     }
 
     /**
-     * Get the order reference ID.
-     */
-    public function getReferenceId(): ?string
-    {
-        return $this->payload['reference_id'] ?? null;
-    }
-
-    /**
-     * Get the order ID.
-     */
-    public function getOrderId(): ?string
-    {
-        return $this->payload['order_id'] ?? null;
-    }
-
-    /**
      * Get the refunded amount.
      */
     public function getRefundedAmount(): ?float
     {
-        return isset($this->payload['refunded_amount']) ? (float) $this->payload['refunded_amount'] : null;
+        $amount = $this->payloadValue('refunded_amount');
+
+        return is_numeric($amount) ? (float) $amount : null;
     }
 
     /**
@@ -51,6 +41,6 @@ class OrderRefunded
      */
     public function getCurrency(): ?string
     {
-        return $this->payload['currency'] ?? null;
+        return $this->stringValue($this->payloadValue('currency'));
     }
 }

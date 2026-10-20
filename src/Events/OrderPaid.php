@@ -4,10 +4,15 @@ namespace Tapsilat\Laravel\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Tapsilat\Laravel\Events\Concerns\ReadsWebhookPayload;
 
+/**
+ * Dispatched for a verified callback whose order status is Paid, Completed or Sub merchant payment
+ * approved.
+ */
 class OrderPaid
 {
-    use Dispatchable, SerializesModels;
+    use Dispatchable, SerializesModels, ReadsWebhookPayload;
 
     /**
      * The webhook payload.
@@ -23,27 +28,13 @@ class OrderPaid
     }
 
     /**
-     * Get the order reference ID.
-     */
-    public function getReferenceId(): ?string
-    {
-        return $this->payload['reference_id'] ?? null;
-    }
-
-    /**
-     * Get the order ID.
-     */
-    public function getOrderId(): ?string
-    {
-        return $this->payload['order_id'] ?? null;
-    }
-
-    /**
      * Get the paid amount.
      */
     public function getAmount(): ?float
     {
-        return isset($this->payload['amount']) ? (float) $this->payload['amount'] : null;
+        $amount = $this->payloadValue('amount') ?? $this->payloadValue('paid_amount');
+
+        return is_numeric($amount) ? (float) $amount : null;
     }
 
     /**
@@ -51,14 +42,6 @@ class OrderPaid
      */
     public function getCurrency(): ?string
     {
-        return $this->payload['currency'] ?? null;
-    }
-
-    /**
-     * Get the conversation ID.
-     */
-    public function getConversationId(): ?string
-    {
-        return $this->payload['conversation_id'] ?? null;
+        return $this->stringValue($this->payloadValue('currency'));
     }
 }

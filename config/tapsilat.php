@@ -44,12 +44,27 @@ return [
     | Webhook Secret
     |--------------------------------------------------------------------------
     |
-    | The secret key used to verify webhook signatures from Tapsilat.
-    | You can find this in your Tapsilat dashboard webhook settings.
+    | The secret Tapsilat signs callbacks with, from the callback settings of
+    | your Tapsilat panel. Every callback carries a Tapsilat-Signature header
+    | that is checked against it. The webhook route is registered only when
+    | this is set.
     |
     */
 
     'webhook_secret' => env('TAPSILAT_WEBHOOK_SECRET', ''),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Webhook Tolerance
+    |--------------------------------------------------------------------------
+    |
+    | How many seconds a callback's signature timestamp may differ from the
+    | server clock, so that a captured callback cannot be replayed later.
+    | Set to 0 to disable the check.
+    |
+    */
+
+    'webhook_tolerance' => (int) env('TAPSILAT_WEBHOOK_TOLERANCE', 300),
 
     /*
     |--------------------------------------------------------------------------

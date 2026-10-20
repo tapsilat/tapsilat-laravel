@@ -4,10 +4,15 @@ namespace Tapsilat\Laravel\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Tapsilat\Laravel\Events\Concerns\ReadsWebhookPayload;
 
+/**
+ * Dispatched for a verified callback whose order status is Cancelled, Fraud, Rejected, Failure,
+ * Expired or Terminated.
+ */
 class OrderFailed
 {
-    use Dispatchable, SerializesModels;
+    use Dispatchable, SerializesModels, ReadsWebhookPayload;
 
     /**
      * The webhook payload.
@@ -23,27 +28,11 @@ class OrderFailed
     }
 
     /**
-     * Get the order reference ID.
-     */
-    public function getReferenceId(): ?string
-    {
-        return $this->payload['reference_id'] ?? null;
-    }
-
-    /**
-     * Get the order ID.
-     */
-    public function getOrderId(): ?string
-    {
-        return $this->payload['order_id'] ?? null;
-    }
-
-    /**
      * Get the error code.
      */
     public function getErrorCode(): ?string
     {
-        return $this->payload['error_code'] ?? null;
+        return $this->stringValue($this->payloadValue('error_code'));
     }
 
     /**
@@ -51,6 +40,7 @@ class OrderFailed
      */
     public function getErrorMessage(): ?string
     {
-        return $this->payload['error_message'] ?? $this->payload['error'] ?? null;
+        return $this->stringValue($this->payloadValue('error_message'))
+            ?? $this->stringValue($this->payloadValue('error'));
     }
 }
