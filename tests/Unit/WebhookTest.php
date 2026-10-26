@@ -12,7 +12,8 @@ use Tapsilat\TapsilatAPI;
 const WEBHOOK_SECRET = 'test-webhook-secret';
 
 /**
- * Signs a body the way admin's monosign.SignWebhook does.
+ * Builds the Tapsilat-Signature header for a body: t=<unix time>,v1=<hex HMAC-SHA256 of "<t>.<body>"
+ * keyed with the webhook secret>.
  */
 function tapsilatSignature(string $body, ?int $timestamp = null, string $secret = WEBHOOK_SECRET): string
 {
